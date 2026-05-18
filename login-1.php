@@ -7,3 +7,4 @@ if (password_verify($password, $user['password'])) {
 } else {
     $error = "Invalid password";
 }
+
