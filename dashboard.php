@@ -1,7 +1,6 @@
 <?php
 require_once 'config.php';
 
-// If user is not logged in, redirect to login page
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
@@ -9,10 +8,10 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Get courses the user is enrolled in
-$sql = "SELECT c.* FROM courses c 
-        JOIN user_courses uc ON c.id = uc.course_id 
+$sql = "SELECT c.* FROM courses c
+        JOIN user_courses uc ON c.id = uc.course_id
         WHERE uc.user_id = $user_id";
+
 $result = $conn->query($sql);
 ?>
 
@@ -20,28 +19,108 @@ $result = $conn->query($sql);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - DMU Portal</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <h1>Welcome, <?php echo $_SESSION['user_name']; ?>!</h1>
-    <p><a href="index.php">Home</a> | <a href="logout.php">Logout</a></p>
-    
-    <h2>My Courses</h2>
-    
-    <?php if ($result->num_rows > 0): ?>
-        <ul>
+
+<nav class="navbar">
+
+    <div class="logo">
+        DMU Portal
+    </div>
+
+    <div class="nav-links">
+        <a href="index.php">Home</a>
+        <a href="logout.php">Logout</a>
+    </div>
+
+</nav>
+
+<div class="container">
+
+    <div class="glass" style="margin-top:40px; text-align:center;">
+
+        <h1>
+            Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!
+        </h1>
+
+        <br>
+
+        <p>
+            Manage your enrolled courses and continue your
+            academic journey through the DMU Course Management System.
+        </p>
+
+    </div>
+
+    <br><br>
+
+    <h2 style="text-align:center;">
+        My Courses
+    </h2>
+
+    <div class="course-grid">
+
+        <?php if($result->num_rows > 0): ?>
+
             <?php while($course = $result->fetch_assoc()): ?>
-                <li>
-                    <a href="course.php?id=<?php echo $course['id']; ?>">
-                        <?php echo $course['title']; ?>
+
+                <div class="course-card">
+
+                    <h3>
+                        <?php echo htmlspecialchars($course['title']); ?>
+                    </h3>
+
+                    <br>
+
+                    <p>
+                        <?php echo htmlspecialchars($course['description']); ?>
+                    </p>
+
+                    <br>
+
+                    <a
+                        href="course.php?id=<?php echo $course['id']; ?>"
+                        class="btn btn-primary"
+                    >
+                        Open Course
                     </a>
-                </li>
+
+                </div>
+
             <?php endwhile; ?>
-        </ul>
-    <?php else: ?>
-        <p>You are not enrolled in any courses yet. 
-           <a href="index.php">Browse courses</a></p>
-    <?php endif; ?>
+
+        <?php else: ?>
+
+            <div class="course-card">
+
+                <h3>No Courses Yet</h3>
+
+                <br>
+
+                <p>
+                    You are not currently enrolled in any courses.
+                </p>
+
+                <br>
+
+                <a
+                    href="index.php"
+                    class="btn btn-primary"
+                >
+                    Browse Courses
+                </a>
+
+            </div>
+
+        <?php endif; ?>
+
+    </div>
+
+</div>
+
 </body>
 </html>
