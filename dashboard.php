@@ -8,20 +8,23 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-$sql = "SELECT c.* FROM courses c
-        JOIN user_courses uc ON c.id = uc.course_id
-        WHERE uc.user_id = $user_id";
+$all_courses_sql = "SELECT * FROM courses";
+$all_courses = $conn->query($all_courses_sql);
 
-$result = $conn->query($sql);
+$my_courses_sql = "SELECT c.* FROM courses c
+                   JOIN user_courses uc ON c.id = uc.course_id
+                   WHERE uc.user_id = $user_id";
+
+$my_courses = $conn->query($my_courses_sql);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - DMU Portal</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - DMU Portal</title>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -34,6 +37,7 @@ $result = $conn->query($sql);
 
     <div class="nav-links">
         <a href="index.php">Home</a>
+        <a href="dashboard.php">Dashboard</a>
         <a href="logout.php">Logout</a>
     </div>
 
@@ -41,17 +45,17 @@ $result = $conn->query($sql);
 
 <div class="container">
 
-    <div class="glass" style="margin-top:40px; text-align:center;">
+    <div class="glass" style="margin-top:40px;text-align:center;">
 
         <h1>
-            Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!
+            Welcome,
+            <?php echo htmlspecialchars($_SESSION['user_name']); ?>!
         </h1>
 
         <br>
 
         <p>
-            Manage your enrolled courses and continue your
-            academic journey through the DMU Course Management System.
+            Manage your enrolled courses and explore all available programmes.
         </p>
 
     </div>
@@ -59,14 +63,14 @@ $result = $conn->query($sql);
     <br><br>
 
     <h2 style="text-align:center;">
-        My Courses
+        My Enrolled Courses
     </h2>
 
     <div class="course-grid">
 
-        <?php if($result->num_rows > 0): ?>
+        <?php if($my_courses->num_rows > 0): ?>
 
-            <?php while($course = $result->fetch_assoc()): ?>
+            <?php while($course = $my_courses->fetch_assoc()): ?>
 
                 <div class="course-card">
 
@@ -86,7 +90,7 @@ $result = $conn->query($sql);
                         href="course.php?id=<?php echo $course['id']; ?>"
                         class="btn btn-primary"
                     >
-                        Open Course
+                        Continue Course
                     </a>
 
                 </div>
@@ -102,21 +106,49 @@ $result = $conn->query($sql);
                 <br>
 
                 <p>
-                    You are not currently enrolled in any courses.
+                    You are not enrolled in any courses.
+                </p>
+
+            </div>
+
+        <?php endif; ?>
+
+    </div>
+
+    <br><br><br>
+
+    <h2 style="text-align:center;">
+        All Available Courses
+    </h2>
+
+    <div class="course-grid">
+
+        <?php while($course = $all_courses->fetch_assoc()): ?>
+
+            <div class="course-card">
+
+                <h3>
+                    <?php echo htmlspecialchars($course['title']); ?>
+                </h3>
+
+                <br>
+
+                <p>
+                    <?php echo htmlspecialchars($course['description']); ?>
                 </p>
 
                 <br>
 
                 <a
-                    href="index.php"
+                    href="course.php?id=<?php echo $course['id']; ?>"
                     class="btn btn-primary"
                 >
-                    Browse Courses
+                    View Course
                 </a>
 
             </div>
 
-        <?php endif; ?>
+        <?php endwhile; ?>
 
     </div>
 
